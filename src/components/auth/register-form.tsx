@@ -3,7 +3,6 @@
 import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { motion } from "framer-motion"
 import { z } from "zod"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"

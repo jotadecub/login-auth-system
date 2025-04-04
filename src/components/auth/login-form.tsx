@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import { z } from "zod";
 import Link from "next/link";
 import { Button } from "../ui/button";
@@ -63,18 +62,6 @@ export default function LoginForm() {
         } finally {
             setLoading(false);
         }
-    };
-
-    const inputVariants = {
-        hidden: { opacity: 0, y: 10 },
-        visible: (i: number ) => ({
-            opacity: 1,
-            y: 0,
-            transition: {
-                delay: i * 0.1 + 0.3,
-                duration: 0.4,
-            },
-        }),
     };
 
     return (
