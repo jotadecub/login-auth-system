@@ -41,7 +41,7 @@ export async function login(formData: FormData): Promise<LoginResult> {
         // Create a user session
         const session = {
             userID: "user_123",
-            email: "email",
+            email,
             name: "John Doe",
         };
     

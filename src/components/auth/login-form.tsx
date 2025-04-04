@@ -12,7 +12,6 @@ import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { Separator } from "@radix-ui/react-separator";
 import { Github } from "lucide-react";
 import { login } from "@/app/actions/auth";
-import { div, p } from "framer-motion/client";
 
 const loginSchema = z.object({
     email: z.string().email("Correo electrónico inválido"),
