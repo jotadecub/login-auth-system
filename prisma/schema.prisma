@@ -10,11 +10,33 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  USER
+  EDITOR
+  ADMIN
+  SUPER_ADMIN
+}
+
 model User {
+  id                String      @id @default(cuid())
+  name              String?
+  email             String      @unique
+  password          String
+  role              Role        @default(USER)
+  emailVerified     DateTime?
+  image             String?
+  twoFactorEnabled  Boolean     @default(false)
+  twoFactorSecret   String?
+  resetToken        String?
+  resetTokenExpiry  DateTime?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  permissions       Permission[]
+}
+
+model Permission {
   id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  password      String
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  name          String    @unique
+  description   String?
+  users         User[]
 }
