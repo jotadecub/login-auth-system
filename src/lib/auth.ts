@@ -130,3 +130,100 @@ export async function getUserPermissions(userId: string): Promise<string[]> {
 
     return user?.permissions.map((p) => p.name) || []
 }
+
+// Functions for forgot password and reset password
+export async function generatePasswordResetToken(email: string) {
+    const user = await getUserByEmail(email)
+  
+    if (!user) {
+      throw new Error("Usuario no encontrado")
+    }
+  
+    // Generate a unique token
+    const resetToken = uuidv4()
+  
+    // Set expiry time for the token (1 hour in this case)
+    const resetTokenExpiry = new Date()
+    resetTokenExpiry.setHours(resetTokenExpiry.getHours() + 1)
+  
+    // Save in the database
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        resetToken,
+        resetTokenExpiry,
+      },
+    })
+  
+    return resetToken
+  }
+  
+  export async function resetPassword(token: string, newPassword: string) {
+    // Find user by token and check if it is valid
+    const user = await prisma.user.findFirst({
+      where: {
+        resetToken: token,
+        resetTokenExpiry: {
+          gt: new Date(),
+        },
+      },
+    })
+  
+    if (!user) {
+      throw new Error("Token inválido o expirado")
+    }
+  
+    // Hash the new password
+    const hashedPassword = await hashPassword(newPassword)
+  
+    // Update the user with the new password and clear the token and expiry
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+        resetToken: null,
+        resetTokenExpiry: null,
+      },
+    })
+  
+    return true
+}
+
+// Functions for two-factor authentication
+export function generateTwoFactorSecret() {
+    return authenticator.generateSecret()
+  }
+  
+  export function generateTwoFactorQRCode(email: string, secret: string) {
+    const appName = "Mi Aplicación"
+    const otpauth = authenticator.keyuri(email, appName, secret)
+    return otpauth
+  }
+  
+  export function verifyTwoFactorToken(token: string, secret: string) {
+    return authenticator.verify({ token, secret })
+  }
+  
+  export async function enableTwoFactor(userId: string, secret: string) {
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        twoFactorEnabled: true,
+        twoFactorSecret: secret,
+      },
+    })
+  
+    return true
+  }
+  
+  export async function disableTwoFactor(userId: string) {
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        twoFactorEnabled: false,
+        twoFactorSecret: null,
+      },
+    })
+  
+    return true
+}

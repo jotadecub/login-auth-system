@@ -15,19 +15,24 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Github } from 'lucide-react'
 import { login } from "@/app/actions/auth"
+import TwoFactorForm from "./two-factor-setup"
 
 const loginSchema = z.object({
   email: z.string().email("Correo electrónico inválido"),
   password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
 })
 
-export default function LoginForm() {
+
+
+export default function LoginForm() { 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const router = useRouter()
+  const [requiresTwoFactor, setRequiresTwoFactor] = useState(false)
+  const [userId, setUserId] = useState("")
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -56,9 +61,13 @@ export default function LoginForm() {
 
       const loginResult = await login(formData)
 
-      if (loginResult.success) {
+      if (loginResult.requiresTwoFactor) {
+        // If the login requires two-factor authentication, set the state and redirect to the 2FA page
+        setRequiresTwoFactor(true)
+        setUserId(loginResult.userId || "")
+      } else if (loginResult.success) {
         router.push("/dashboard")
-        router.refresh() // Refrescar para actualizar la sesión
+        router.refresh()
       } else {
         setError(loginResult.error || "Error al iniciar sesión")
       }
@@ -80,6 +89,11 @@ export default function LoginForm() {
         duration: 0.4,
       },
     }),
+  }
+
+  // If requires two-factor authentication, render the TwoFactorForm component
+  if (requiresTwoFactor) {
+    return <TwoFactorForm email={email} password={password} userId={userId} />
   }
 
   return (
