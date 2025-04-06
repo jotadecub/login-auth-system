@@ -1,23 +1,19 @@
-import React from "react";
-import { getSession } from "@/lib/auth";
-import { redirect } from "next/navigation";
+import type React from "react"
+import { getSession } from "@/lib/auth"
+import { redirect } from "next/navigation"
 
 export default async function AuthLayout({
-    children,
+  children,
 }: {
-    children: React.ReactNode;
+  children: React.ReactNode
 }) {
-    // Check if the user is authenticated
-    const session = await getSession();
+  // Verify if the user is authenticated
+  const session = await getSession()
 
-    // if the user is authenticated, redirect to the home page
-    if (session) {
-        redirect("/dashboard");
-    }
+  // If the user is authenticated, redirect to the dashboard
+  if (session) {
+    redirect("/dashboard")
+  }
 
-    return (
-        <div>
-            {children}
-        </div>
-    );
+  return <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">{children}</div>
 }

@@ -1,26 +1,27 @@
-import Header from "@/components/layout/header";
-import Footer from "@/components/layout/footer";
-import { getSession } from "@/lib/auth";
-import { redirect } from "next/navigation";
+import type React from "react"
+import Header from "@/components/layout/header"
+import Footer from "@/components/layout/footer"
+import { getSession } from "@/lib/auth"
+import { redirect } from "next/navigation"
 
 export default async function ProtectedLayout({
-    children,
+  children,
 }: {
-    children: React.ReactNode;
+  children: React.ReactNode
 }) {
-    // Check if the user is authenticated
-    const session = await getSession();
+  // Verify if the user is authenticated
+  const session = await getSession()
 
-    // If not authenticated, redirect to login page
-    if (!session) {
-        redirect("/login");
-    }
+  // If the user is not authenticated, redirect to the login page
+  if (!session) {
+    redirect("/login")
+  }
 
-    return (
-        <div>
-            <Header user={session} />
-            <main>{children}</main>
-            <Footer />
-        </div>
-    );
+  return (
+    <div className="flex min-h-screen flex-col">
+      <Header user={session} />
+      <main className="flex-1 bg-gray-50 dark:bg-gray-900">{children}</main>
+      <Footer />
+    </div>
+  )
 }
